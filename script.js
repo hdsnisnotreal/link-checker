@@ -10,31 +10,40 @@ document.addEventListener("DOMContentLoaded", function () {
 
         links.forEach((link) => {
             const trimmedLink = link.trim();
-            const anchor = document.createElement("a");
-            anchor.href = trimmedLink;
-            anchor.textContent = trimmedLink;
+            const iframe = document.createElement("iframe");
 
-            const result = document.createElement("p");
-            result.appendChild(anchor);
+            // Set the iframe source to the link
+            iframe.src = trimmedLink;
+            iframe.style.display = "none"; // Hide the iframe
 
-            // Check if the link is reachable
-            fetch(trimmedLink, { method: "HEAD" })
-                .then((response) => {
-                    if (response.ok) {
-                        result.textContent += " - Not Blocked";
-                        result.style.color = "green";
-                    } else {
-                        result.textContent += " - Blocked";
-                        result.style.color = "red";
-                    }
-                })
-                .catch(() => {
-                    result.textContent += " - Blocked";
-                    result.style.color = "red";
-                })
-                .finally(() => {
+            iframe.onload = () => {
+                // Check if the iframe loaded successfully
+                if (iframe.contentDocument && iframe.contentDocument.body) {
+                    const result = document.createElement("p");
+                    result.textContent = `${trimmedLink} - Not Blocked`;
+                    result.style.color = "green";
                     resultsDiv.appendChild(result);
-                });
+                } else {
+                    const result = document.createElement("p");
+                    result.textContent = `${trimmedLink} - Blocked`;
+                    result.style.color = "red";
+                    resultsDiv.appendChild(result);
+                }
+                // Remove the iframe from the document
+                document.body.removeChild(iframe);
+            };
+
+            iframe.onerror = () => {
+                const result = document.createElement("p");
+                result.textContent = `${trimmedLink} - Blocked`;
+                result.style.color = "red";
+                resultsDiv.appendChild(result);
+                // Remove the iframe from the document
+                document.body.removeChild(iframe);
+            };
+
+            // Add the iframe to the document to trigger loading
+            document.body.appendChild(iframe);
         });
     });
 });
