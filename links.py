@@ -1,59 +1,34 @@
 import requests
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-import os
 
-# List of URLs to check
-urls = [
-    "https://education-live.fun/",
-    # Add more URLs here
-]
+def check_links(links):
+    accessible_links = []
+    inaccessible_links = []
 
-# Function to check if a URL is accessible
-def check_url(url):
-    try:
-        response = requests.get(url)
-        return response.status_code == 200
-    except requests.exceptions.RequestException:
-        return False
+    for link in links:
+        try:
+            response = requests.head(link)
+            if response.status_code < 400:  # Check if the response status is not an error (e.g., 404)
+                accessible_links.append(link)
+            else:
+                inaccessible_links.append(link)
+        except Exception as e:
+            inaccessible_links.append(link)
 
-# Send email function
-def send_email(subject, body):
-    # Your Gmail credentials (use environment variables or a config file instead)
-    gmail_user = os.getenv('GMAIL_USER')
-    gmail_password = os.getenv('GMAIL_PASSWORD')
+    return accessible_links, inaccessible_links
 
-    # Email settings
-    to_email = 'micdropws@gmail.com'
+if __name__ == "__main__":
+    input_links = [
+        "https://www.example.com",
+        "https://www.example.com/nonexistent",  # This link will likely be inaccessible
+        "https://www.google.com",
+    ]
 
-    msg = MIMEMultipart()
-    msg['From'] = gmail_user
-    msg['To'] = to_email
-    msg['Subject'] = subject
+    accessible_links, inaccessible_links = check_links(input_links)
 
-    msg.attach(MIMEText(body, 'plain'))
+    print("Accessible Links:")
+    for link in accessible_links:
+        print(link)
 
-    try:
-        server = smtplib.SMTP('smtp.gmail.com', 587)
-        server.starttls()
-        server.login(gmail_user, gmail_password)
-        text = msg.as_string()
-        server.sendmail(gmail_user, to_email, text)
-        server.quit()
-        print("Email sent successfully!")
-    except Exception as e:
-        print("Error sending email:", str(e))
-
-# Check URLs and send results via email
-blocked_urls = []
-for url in urls:
-    if not check_url(url):
-        blocked_urls.append(url)
-
-if blocked_urls:
-    subject = "Blocked URLs Report"
-    body = "\n".join(blocked_urls)
-    send_email(subject, body)
-else:
-    print("All URLs are accessible.")
+    print("\nInaccessible Links:")
+    for link in inaccessible_links:
+        print(link)
