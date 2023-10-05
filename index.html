@@ -1,73 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
     <title>Link Checker</title>
-    <style>
-        /* CSS styles as before */
-    </style>
 </head>
 <body>
-    <div class="container">
-        <h1>Link Checker</h1>
-        <div class="form-container">
-            <form id="link-form">
-                <input type="text" id="links-input" placeholder="Enter links, separated by commas" required>
-                <button type="submit">Check Links</button>
-            </form>
-        </div>
-        <div class="results">
-            <h2>Accessible Links:</h2>
-            <div id="accessible-links" class="accessible-links">
-                <!-- Accessible links will be displayed here -->
-            </div>
-
-            <h2>Inaccessible Links:</h2>
-            <div id="inaccessible-links" class="inaccessible-links">
-                <!-- Inaccessible links will be displayed here -->
-            </div>
-        </div>
+    <h1>Link Checker</h1>
+    <div class="input-container">
+        <textarea id="links" placeholder="Enter links here (one per line)"></textarea>
+        <button id="check-button">Check Links</button>
     </div>
-    
-    <script>
-        document.getElementById("link-form").addEventListener("submit", function(event) {
-            event.preventDefault(); // Prevent the form from submitting in the traditional way
-            
-            // Get the input value (comma-separated links)
-            const linksInput = document.getElementById("links-input").value;
-            
-            // Send an AJAX request to the server (You would need a server-side endpoint to handle this request)
-            // In this example, we simulate a response with sample data
-            fetch("/check-links", {
-                method: "POST",
-                body: JSON.stringify({ links: linksInput }),
-                headers: {
-                    "Content-Type": "application/json"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                // Display accessible links
-                const accessibleLinksContainer = document.getElementById("accessible-links");
-                accessibleLinksContainer.innerHTML = "";
-                data.accessibleLinks.forEach(link => {
-                    const linkElement = document.createElement("p");
-                    linkElement.textContent = link;
-                    accessibleLinksContainer.appendChild(linkElement);
-                });
-                
-                // Display inaccessible links
-                const inaccessibleLinksContainer = document.getElementById("inaccessible-links");
-                inaccessibleLinksContainer.innerHTML = "";
-                data.inaccessibleLinks.forEach(link => {
-                    const linkElement = document.createElement("p");
-                    linkElement.textContent = link;
-                    inaccessibleLinksContainer.appendChild(linkElement);
-                });
-            })
-            .catch(error => {
-                console.error("Error:", error);
-            });
-        });
-    </script>
+    <div id="results"></div>
+    <script src="script.js"></script>
 </body>
 </html>
